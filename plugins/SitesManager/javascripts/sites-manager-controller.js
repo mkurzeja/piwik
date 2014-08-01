@@ -170,7 +170,13 @@ angular.module('piwikApp').controller('SitesManagerController', function ($scope
 
     var addSite = function() {
         $scope.sites.push({});
+
+        goToLastPage();
     };
+
+    var goToLastPage = function() {
+        $scope.currentPage = $scope.pageCount();
+    }
 
     var saveGlobalSettings = function() {
 
@@ -221,6 +227,7 @@ angular.module('piwikApp').controller('SitesManagerController', function ($scope
                 $scope.sites.push(site);
             });
 
+            paginateSitesList();
             hideLoading();
         });
     };
@@ -240,5 +247,50 @@ angular.module('piwikApp').controller('SitesManagerController', function ($scope
         $scope.loading = false;
     };
 
+    var paginateSitesList = function() {
+        $scope.sitesPerPage = 5;
+        $scope.currentPage = 0;
+        $scope.pages = [];
+
+        $scope.setPage = function(pageNr) {
+            $scope.currentPage = pageNr;
+        }
+
+        $scope.prevPage = function() {
+            if ($scope.currentPage > 0) {
+                $scope.currentPage--;
+            }
+        };
+
+        $scope.prevPageDisabled = function() {
+            return $scope.currentPage === 0 ? "disabled" : "";
+        };
+
+        $scope.pageCount = function() {
+            return Math.ceil($scope.sites.length/$scope.sitesPerPage)-1;
+        };
+
+        $scope.nextPage = function() {
+            if ($scope.currentPage < $scope.pageCount()) {
+                $scope.currentPage++;
+            }
+        };
+
+        $scope.nextPageDisabled = function() {
+            return $scope.currentPage === $scope.pageCount() ? "disabled" : "";
+        };
+
+        for(var i=0; i<=$scope.pageCount(); i++){
+            $scope.pages[i] = i;
+        }
+    }
+
     init();
+});
+
+angular.module('piwikApp').filter('offset', function() {
+    return function(input, start) {
+        start = parseInt(start, 10);
+        return input.slice(start);
+    };
 });
